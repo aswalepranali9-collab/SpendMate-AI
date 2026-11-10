@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Wallet,
   Calendar,
+  Zap,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -57,44 +58,76 @@ export const Dashboard = () => {
     year: 'numeric',
   }).format(new Date());
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6 relative"
+    >
+      {/* Background ambient lighting */}
+      <div className="aurora-orb-1 top-[-80px] right-[-100px] opacity-40 pointer-events-none" />
+
       {/* Top Greeting Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <motion.div
+        variants={itemVariants}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-800/80"
+      >
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Welcome back, {user?.name?.split(' ')[0] || 'Investor'}!
             </h1>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20">
-              <Sparkles className="w-3 h-3 text-cyan-400" /> AI Active
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+              AI Sentinel Live
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-slate-500" />
-            {todayStr} • {user?.occupation || 'Financially Mindful'}
+          <p className="text-xs text-slate-400 mt-1 flex items-center gap-2 font-medium">
+            <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+            {todayStr} • {user?.occupation || 'Senior Tech Lead'}
           </p>
         </div>
 
         <button
           onClick={() => setQuickAddOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition transform active:scale-95"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white text-xs font-extrabold shadow-xl shadow-indigo-600/30 transition transform active:scale-95 ring-1 ring-white/10"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Record Transaction</span>
         </button>
-      </div>
+      </motion.div>
 
       {/* 4 Summary Stat Cards */}
-      <SummaryCards data={dashboardData} symbol={symbol} />
+      <motion.div variants={itemVariants}>
+        <SummaryCards data={dashboardData} symbol={symbol} />
+      </motion.div>
 
       {/* Budget Pace Warning Pill if high utilization */}
       {dashboardData?.budget?.utilization >= 80 && (
-        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
-          <div className="flex items-center gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+        <motion.div
+          variants={itemVariants}
+          className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300 backdrop-blur-xl shadow-lg"
+        >
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 animate-pulse" />
             <span>
-              <strong>Budget Watch:</strong> You have utilized {dashboardData.budget.utilization}% of
+              <strong>Budget Watchdog:</strong> You have utilized {dashboardData.budget.utilization}% of
               your {symbol}
               {dashboardData.budget.allocated.toLocaleString()} monthly allowance. Remaining safe spend: {symbol}
               {dashboardData.budget.remaining.toLocaleString()}.
@@ -102,76 +135,86 @@ export const Dashboard = () => {
           </div>
           <Link
             to="/budgets"
-            className="hidden sm:inline-flex items-center gap-1 font-bold text-amber-400 hover:underline"
+            className="hidden sm:inline-flex items-center gap-1 font-bold text-amber-400 hover:underline shrink-0"
           >
-            Review Budgets <ArrowRight className="w-3.5 h-3.5" />
+            Review Limits <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+        </motion.div>
       )}
 
       {/* Main 2-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (Charts) */}
-        <div className="lg:col-span-7 space-y-6">
+        <motion.div variants={itemVariants} className="lg:col-span-7 space-y-6">
           <IncomeExpenseChart data={chartsData?.monthlyComparison || []} symbol={symbol} />
           <SpendingTrendChart data={chartsData?.spendingTrend || []} symbol={symbol} />
-        </div>
+        </motion.div>
 
         {/* Right Column (Health Score & Recent Transactions) */}
-        <div className="lg:col-span-5 space-y-6">
+        <motion.div variants={itemVariants} className="lg:col-span-5 space-y-6">
           <FinancialHealthScore healthScore={dashboardData?.healthScore} />
           <RecentTransactions
             transactions={dashboardData?.recentTransactions || []}
             symbol={symbol}
           />
-        </div>
+        </motion.div>
       </div>
 
       {/* Top Spending Categories Quick Pills */}
       {dashboardData?.topCategories?.length > 0 && (
-        <div className="rounded-2xl bg-[#121927]/80 border border-slate-800 p-4">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
-            Top Outflow Areas This Month
+        <motion.div
+          variants={itemVariants}
+          className="rounded-2xl bg-[#0D121F]/80 border border-slate-800/80 p-4 backdrop-blur-xl"
+        >
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3">
+            Primary Outflow Areas This Month
           </span>
           <div className="flex flex-wrap items-center gap-2.5">
             {dashboardData.topCategories.map((c) => (
               <div
                 key={c.category}
-                className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs flex items-center gap-2"
+                className="px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs flex items-center gap-2 shadow-sm"
               >
-                <span className="font-semibold text-slate-200">{c.category}</span>
-                <span className="font-bold text-rose-400">{formatCurrency(c.amount, symbol)}</span>
-                <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                <span className="font-bold text-slate-200">{c.category}</span>
+                <span className="font-extrabold text-rose-400">{formatCurrency(c.amount, symbol)}</span>
+                <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-semibold">
                   {c.percentage}%
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* AI Advisor Banner */}
-      <div className="p-5 rounded-3xl bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-cyan-900/40 border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-indigo-500/20 text-indigo-300">
-            <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
+      {/* AI Advisor Hero Banner with Gradient Border */}
+      <motion.div variants={itemVariants} className="gradient-border-card">
+        <div className="gradient-border-card-inner p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 rounded-2xl bg-indigo-500/20 text-cyan-300 ring-1 ring-cyan-500/30">
+              <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                SpendMate AI Financial Copilot
+                <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  Ready
+                </span>
+              </h3>
+              <p className="text-xs text-slate-300 mt-1">
+                Personalized savings opportunities and predictive 30-day expense forecast computed for your ledger.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-white">SpendMate AI Financial Copilot</h3>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Personalized savings opportunities and expense forecasts ready for your review.
-            </p>
-          </div>
-        </div>
 
-        <Link
-          to="/ai-advisor"
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition"
-        >
-          <span>Ask AI Advisor</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
+          <Link
+            to="/ai-advisor"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white text-xs font-extrabold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition transform active:scale-95 shrink-0"
+          >
+            <span>Ask AI Copilot</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </motion.div>
 
       {/* Global Quick Add Modal */}
       <QuickAddModal
@@ -180,7 +223,6 @@ export const Dashboard = () => {
         onSuccess={loadData}
         symbol={symbol}
       />
-    </div>
+    </motion.div>
   );
 };
-
