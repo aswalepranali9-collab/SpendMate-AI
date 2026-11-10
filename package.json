@@ -1,0 +1,39 @@
+{
+  "name": "spendmate-ai",
+  "version": "1.0.0",
+  "description": "AI-powered personal finance tracker built with React, Node.js, Express, MongoDB, JWT Authentication, Analytics Dashboard, Budget Planning, Savings Goals, and AI Financial Insights.",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "postinstall": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue.bold,green.bold\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start": "npm --prefix backend start",
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend run preview",
+    "build": "npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "seed": "npm --prefix backend run seed",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install"
+  },
+  "keywords": [
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "mern",
+    "tailwindcss",
+    "jwt-authentication",
+    "finance-tracker",
+    "expense-tracker",
+    "personal-finance",
+    "recharts",
+    "ai",
+    "portfolio-project"
+  ],
+  "author": "SpendMate AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
