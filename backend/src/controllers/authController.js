@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import { seedSampleUserData } from '../utils/seedData.js';
@@ -19,6 +20,13 @@ const generateToken = (id) => {
 // @access  Public
 export const register = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is not connected. Please set the MONGODB_URI environment variable in your Vercel Project Settings.',
+      });
+    }
+
     const { name, email, password, currency, currencySymbol } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -67,6 +75,13 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is not connected. Please set the MONGODB_URI environment variable in your Vercel Project Settings, or try 1-Click Guest Demo Mode.',
+      });
+    }
+
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -192,6 +207,28 @@ export const updateProfile = async (req, res) => {
 export const demoLogin = async (req, res) => {
   try {
     const demoEmail = 'alex.morgan@spendmate.ai';
+    const dummyId = '507f191e810c19729de860ea';
+
+    // If MongoDB is not connected in serverless/offline, return standalone demo session immediately
+    if (mongoose.connection.readyState !== 1) {
+      const token = generateToken(dummyId);
+      return res.json({
+        success: true,
+        token,
+        user: {
+          id: dummyId,
+          name: 'Alex Morgan',
+          email: demoEmail,
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+          currency: 'INR',
+          currencySymbol: '₹',
+          monthlyBudget: 70000,
+          occupation: 'Senior Product Designer',
+          isDemo: true,
+        },
+      });
+    }
+
     let user = await User.findOne({ email: demoEmail });
 
     if (!user) {

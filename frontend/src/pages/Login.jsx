@@ -25,7 +25,12 @@ export const Login = () => {
       await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password');
+      setError(
+        err.response?.data?.message ||
+        (err.response?.status === 503
+          ? 'Database is not connected. Please set MONGODB_URI in Vercel Project Settings, or click 1-Click Guest Demo.'
+          : 'Invalid email or password')
+      );
     } finally {
       setLoading(false);
     }

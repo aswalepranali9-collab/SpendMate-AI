@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           console.error('Session validation failed:', error);
-          logout();
+          if (localStorage.getItem('spendmate_demo_mode') !== 'true') {
+            logout();
+          }
         }
       }
       setLoading(false);
@@ -58,14 +60,38 @@ export const AuthProvider = ({ children }) => {
   };
 
   const demoLogin = async () => {
-    const data = await authService.demoLogin();
-    if (data.token && data.user) {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('spendmate_token', data.token);
-      localStorage.setItem('spendmate_user', JSON.stringify(data.user));
+    localStorage.setItem('spendmate_demo_mode', 'true');
+    try {
+      const data = await authService.demoLogin();
+      if (data?.token && data?.user) {
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('spendmate_token', data.token);
+        localStorage.setItem('spendmate_user', JSON.stringify(data.user));
+        return data;
+      }
+    } catch (err) {
+      console.warn('Backend /auth/demo returned error; engaging local demo session fallback:', err);
     }
-    return data;
+
+    // Direct fallback guarantee for 1-click preview
+    const demoToken = 'demo-token-spendmate-live-preview';
+    const demoUser = {
+      id: 'demo-user-alex-morgan',
+      name: 'Alex Morgan',
+      email: 'alex.morgan@spendmate.ai',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+      currency: 'INR',
+      currencySymbol: '₹',
+      monthlyBudget: 70000,
+      occupation: 'Senior Product Designer',
+      isDemo: true,
+    };
+    setToken(demoToken);
+    setUser(demoUser);
+    localStorage.setItem('spendmate_token', demoToken);
+    localStorage.setItem('spendmate_user', JSON.stringify(demoUser));
+    return { success: true, token: demoToken, user: demoUser };
   };
 
   const updateUser = (updatedUser) => {
@@ -78,6 +104,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('spendmate_token');
     localStorage.removeItem('spendmate_user');
+    localStorage.removeItem('spendmate_demo_mode');
+    localStorage.removeItem('spendmate_demo_txs');
   };
 
   return (

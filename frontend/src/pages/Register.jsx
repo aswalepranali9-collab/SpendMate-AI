@@ -44,7 +44,14 @@ export const Register = () => {
       });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create account');
+      setError(
+        err.response?.data?.message ||
+        (err.response?.status === 503
+          ? 'Database connection pending. Please set MONGODB_URI in Vercel Project Settings or test using Guest Demo Mode.'
+          : err.response?.status === 405
+          ? 'Backend endpoint not ready on this deployment. Please test with 1-Click Guest Demo Mode.'
+          : 'Failed to create account. Please verify your details or use Guest Demo Mode.')
+      );
     } finally {
       setLoading(false);
     }

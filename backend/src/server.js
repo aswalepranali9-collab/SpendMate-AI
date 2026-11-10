@@ -34,24 +34,32 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Health Check Endpoint
-app.get('/api/health', (req, res) => {
+// Health Check Endpoint (supports both /api/health and /health)
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'healthy',
     service: 'SpendMate AI Backend Engine',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
+    database: req.app.get('dbReady') ? 'connected' : 'ready',
   });
 });
 
-// Mount API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/budgets', budgetRoutes);
-app.use('/api/goals', goalRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/notifications', notificationRoutes);
+// Mount API Routes (mount on both /api/path and /path for Vercel Serverless & local dev)
+const routeConfigs = [
+  { path: '/auth', router: authRoutes },
+  { path: '/transactions', router: transactionRoutes },
+  { path: '/budgets', router: budgetRoutes },
+  { path: '/goals', router: goalRoutes },
+  { path: '/analytics', router: analyticsRoutes },
+  { path: '/ai', router: aiRoutes },
+  { path: '/notifications', router: notificationRoutes },
+];
+
+routeConfigs.forEach(({ path, router }) => {
+  app.use(`/api${path}`, router);
+  app.use(path, router);
+});
 
 // Error Handling Middlewares
 app.use(notFound);
@@ -59,9 +67,12 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 SpendMate AI Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+// Only start the HTTP listener when NOT running inside Vercel serverless functions
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 SpendMate AI Backend running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
 
 export default app;
 
