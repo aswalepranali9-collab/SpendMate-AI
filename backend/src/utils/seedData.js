@@ -289,7 +289,7 @@ const runStandaloneSeed = async () => {
     demoUser = await User.create({
       name: 'Alex Morgan',
       email: 'alex.morgan@spendmate.ai',
-      password: 'Password123!',
+      password: process.env.DEMO_USER_PASSWORD || 'SpendMateDemo2026!',
       currency: 'INR',
       currencySymbol: '₹',
       monthlyBudget: 70000,

@@ -262,12 +262,12 @@ Default configuration:
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://127.0.0.1:27017/spendmate_ai
-JWT_SECRET=spendmate_ai_jwt_secret_key_production_grade_super_secure_2026
+JWT_SECRET=your_jwt_secret_key_change_in_production
 JWT_EXPIRE=30d
 CLIENT_URL=http://localhost:5173
 
 # Optional: Google Gemini API Key for live LLM responses
-GEMINI_API_KEY=
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 > **Zero-Setup Local Dev:** If local MongoDB is not running, SpendMate AI automatically initializes an in-memory MongoDB server instance so you can test immediately with zero configuration!

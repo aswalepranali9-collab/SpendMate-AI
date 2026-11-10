@@ -7,7 +7,7 @@ import { seedSampleUserData } from '../utils/seedData.js';
 const generateToken = (id) => {
   return jwt.sign(
     { id },
-    process.env.JWT_SECRET || 'spendmate_ai_jwt_secret_key_production_grade_super_secure_2026',
+    process.env.JWT_SECRET || 'dev_secret_jwt_key_only_for_local_testing',
     {
       expiresIn: process.env.JWT_EXPIRE || '30d',
     }
@@ -198,7 +198,7 @@ export const demoLogin = async (req, res) => {
       user = await User.create({
         name: 'Alex Morgan',
         email: demoEmail,
-        password: 'Password123!',
+        password: process.env.DEMO_USER_PASSWORD || 'SpendMateDemo2026!',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
         currency: 'INR',
         currencySymbol: '₹',
